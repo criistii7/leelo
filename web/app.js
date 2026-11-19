@@ -399,16 +399,21 @@ function alMensajeMotor({ data }) {
   if (!espera) return;
   const { item } = espera;
   switch (data.tipo) {
-    case 'carga':
+    case 'carga': {
       if (!item.descargando || !(data.total > 0)) break;
-      if (data.progreso >= 100) {
+      // Los archivos empiezan a llegar de uno en uno: el total conocido de antemano (cfg.mb) evita
+      // que el porcentaje salte hacia atrás cuando aparece uno nuevo.
+      const total = Math.max(data.total, (item.cfg?.mb ?? 0) * 1e6);
+      const fraccion = Math.min(1, data.cargado / total);
+      if (fraccion >= 0.995) {
         ponerEstado(item, 'cargando', 'Preparando el modelo…');
         barra(item, null);
       } else {
-        ponerEstado(item, 'cargando', `Descargando el modelo de voz (solo la primera vez) · ${Math.floor(data.progreso)} % · ${fmtMB(data.cargado)} de ${fmtMB(data.total)}`);
-        barra(item, data.progreso / 100);
+        ponerEstado(item, 'cargando', `Descargando el modelo de voz (solo la primera vez) · ${Math.floor(fraccion * 100)} % · ${fmtMB(data.cargado)} de ${fmtMB(total)}`);
+        barra(item, fraccion);
       }
       break;
+    }
     case 'modelo-listo':
       if (item.descargando) {
         item.descargando = false;
@@ -582,6 +587,7 @@ async function procesar(item) {
 
 async function transcribirCon(item, pcm, cfg) {
   const descargado = await estaDescargado(cfg);
+  item.cfg = cfg;
   item.descargando = !descargado;
   item.provisional = '';
   item.el.texto.textContent = '';

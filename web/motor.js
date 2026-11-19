@@ -45,16 +45,28 @@ async function preparar(cfg, id) {
     try { await cargado.asr.dispose(); } catch { /* da igual */ }
     cargado = { clave: null, asr: null };
   }
+  // Progreso sumando lo que llega de cada archivo. No se usa el «progress_total» de la librería:
+  // con el turbo cuenta un archivo de 2,5 GB que nunca descarga (marcaba «57 MB de 3115 MB»).
+  const archivos = new Map();
   let ultimo = 0;
   const asr = await pipeline('automatic-speech-recognition', cfg.modelo, {
     device: cfg.dispositivo,
     dtype: cfg.dtype,
     progress_callback: (p) => {
-      if (p.status !== 'progress_total') return;
+      if (!p.file) return;
+      if (p.status === 'progress') archivos.set(p.file, { cargado: p.loaded ?? 0, total: p.total ?? 0 });
+      else if (p.status === 'done' && archivos.has(p.file)) archivos.get(p.file).cargado = archivos.get(p.file).total;
+      else return;
       const ahora = Date.now();
-      if (ahora - ultimo < 200 && p.progress < 100) return;
+      if (ahora - ultimo < 200 && p.status !== 'done') return;
       ultimo = ahora;
-      avisar('carga', { id, progreso: p.progress, cargado: p.loaded, total: p.total });
+      let cargado = 0;
+      let total = 0;
+      for (const a of archivos.values()) {
+        cargado += a.cargado;
+        total += a.total;
+      }
+      avisar('carga', { id, cargado, total });
     },
   });
   cargado = { clave, asr };
