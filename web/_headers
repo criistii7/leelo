@@ -1,0 +1,13 @@
+# Cabeceras para Netlify / Cloudflare Pages.
+# El aislamiento (COOP + COEP) permite que Whisper use varios núcleos del procesador.
+/*
+  Cross-Origin-Opener-Policy: same-origin
+  Cross-Origin-Embedder-Policy: require-corp
+  Referrer-Policy: strict-origin-when-cross-origin
+  X-Content-Type-Options: nosniff
+
+/sw.js
+  Cache-Control: no-cache
+
+/manifest.webmanifest
+  Content-Type: application/manifest+json

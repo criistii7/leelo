@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Léelo · Tus audios de WhatsApp, en texto</title>
+  <meta name="description" content="Pasa audios de WhatsApp a texto gratis, busca palabras y mira en qué minuto se dicen. Sin cuentas y sin subir nada: todo ocurre en tu propio móvil u ordenador.">
+  <meta name="theme-color" content="#faf6ef" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#0f1318" media="(prefers-color-scheme: dark)">
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="es_ES">
+  <meta property="og:title" content="Léelo · Tus audios de WhatsApp, en texto">
+  <meta property="og:description" content="Gratis, sin cuentas y sin subir nada. Busca una palabra y mira en qué minuto se dice.">
+  <meta property="og:url" content="https://criistii7.github.io/leelo/">
+  <meta property="og:image" content="https://criistii7.github.io/leelo/og.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="iconos/icono.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="iconos/apple-touch-icon.png">
+  <link rel="preload" href="fuentes/atkinson-next.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="fuentes/instrument-serif.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="estilos.css">
+  <script type="module" src="app.js"></script>
+</head>
+<body>
+  <div class="pagina">
+    <header class="cabecera">
+      <div class="marca">
+        <h1 class="logo">Léelo</h1>
+        <button class="boton-sec instalar" id="instalar" type="button" hidden>Instalar app</button>
+      </div>
+      <p class="lema">Tus audios de WhatsApp, en texto.</p>
+      <p class="sublema">Gratis y sin cuentas. Busca una palabra y mira en qué minuto se dice. El audio no sale de tu dispositivo: todo se hace aquí mismo.</p>
+    </header>
+
+    <main>
+      <section class="entrada" id="entrada" aria-label="Añadir audios">
+        <button class="boton-principal" id="elegir" type="button">
+          <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M12 15V4m0 0L7.5 8.5M12 4l4.5 4.5M5 14v4a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Elegir audios
+        </button>
+        <input id="archivo" type="file" multiple accept="audio/*,video/*,.opus,.ogg,.oga,.m4a,.mp3,.wav,.aac,.amr,.webm,.mp4,.mov" hidden>
+        <p class="pista-soltar" id="pista-soltar">o arrástralos aquí · notas de voz (.opus), .m4a, .mp3, .wav, vídeos…</p>
+      </section>
+
+      <section class="ajustes" aria-label="Ajustes">
+        <div class="campo">
+          <label for="idioma">Idioma del audio</label>
+          <select id="idioma"></select>
+        </div>
+        <fieldset class="campo">
+          <legend>Calidad</legend>
+          <div class="segmentos" id="calidades">
+            <label><input type="radio" name="calidad" value="rapida"><span>Rápida</span></label>
+            <label><input type="radio" name="calidad" value="buena"><span>Buena</span></label>
+            <label id="opcion-maxima"><input type="radio" name="calidad" value="maxima"><span>Máxima</span></label>
+          </div>
+        </fieldset>
+        <p class="nota-calidad" id="nota-calidad"></p>
+      </section>
+
+      <section class="resultados" id="resultados" hidden>
+        <div class="resultados-cabecera">
+          <h2>Transcripciones</h2>
+          <button class="boton-sec" id="copiar-todo" type="button" hidden>Copiar todo</button>
+        </div>
+
+        <div class="buscador" id="buscador" hidden>
+          <label class="buscador-campo">
+            <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><circle cx="11" cy="11" r="6.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M16 16l4.5 4.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+            <span class="oculto">Buscar en las transcripciones</span>
+            <input id="busqueda" type="search" placeholder="Buscar palabras: precio, visita…" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="search">
+          </label>
+          <p class="resumen-busqueda" id="resumen-busqueda" aria-live="polite"></p>
+          <ol class="coincidencias" id="coincidencias"></ol>
+        </div>
+
+        <ol class="lista" id="lista"></ol>
+        <p class="aviso" id="aviso-abierta" hidden>Deja esta pantalla abierta mientras transcribe.</p>
+        <p class="aviso">Toca un minuto o cualquier palabra para escuchar el audio desde ahí. No se guarda nada: si cierras la página, las transcripciones desaparecen.</p>
+      </section>
+
+      <section class="ayuda" aria-labelledby="ayuda-titulo">
+        <h2 id="ayuda-titulo">Cómo sacar un audio de WhatsApp</h2>
+        <details data-plataforma="android">
+          <summary>Android</summary>
+          <ol>
+            <li>Instala Léelo: en Chrome, menú <b>⋮</b> → <b>Instalar aplicación</b> (o <b>Añadir a pantalla de inicio</b>).</li>
+            <li>En WhatsApp, mantén pulsado el audio → <b>⋮</b> → <b>Compartir</b>.</li>
+            <li>Elige <b>Léelo</b>: se abre y empieza a transcribir sola.</li>
+          </ol>
+          <p>Sin instalarla también funciona: guarda el audio en el móvil y pulsa <b>Elegir audios</b>.</p>
+        </details>
+        <details data-plataforma="ios">
+          <summary>iPhone</summary>
+          <ol>
+            <li>En WhatsApp, mantén pulsado el audio → <b>Reenviar</b>.</li>
+            <li>Toca el icono de compartir (abajo a la derecha) → <b>Guardar en Archivos</b>.</li>
+            <li>Vuelve aquí, pulsa <b>Elegir audios</b> → <b>Explorar</b> y elige el audio.</li>
+          </ol>
+        </details>
+        <details data-plataforma="escritorio">
+          <summary>Ordenador</summary>
+          <ol>
+            <li>En WhatsApp Web, pasa el ratón por el audio, abre su menú (la flechita) → <b>Descargar</b>.</li>
+            <li>Arrastra el archivo a esta página o pulsa <b>Elegir audios</b>. Puedes soltar varios a la vez.</li>
+          </ol>
+        </details>
+      </section>
+
+      <section class="ayuda" aria-labelledby="dudas-titulo">
+        <h2 id="dudas-titulo">Dudas</h2>
+        <details>
+          <summary>¿Cómo busco una palabra?</summary>
+          <p>Cuando termine, escribe en el buscador. Da igual que pongas tildes o mayúsculas, y puedes buscar varias cosas a la vez separándolas con comas (<i>precio, visita, notaría</i>). Verás el minuto y el segundo en que se dice cada una; tócala y el audio suena justo desde ahí. También puedes tocar cualquier palabra del texto.</p>
+        </details>
+        <details>
+          <summary>¿Y la transcripción que trae WhatsApp?</summary>
+          <p>WhatsApp tiene una en el móvil (Ajustes → Chats → Transcripciones de mensajes de voz). Léelo sirve además en el ordenador, con varios audios a la vez y con audios o vídeos que no vienen de WhatsApp, y te deja buscar, copiar, compartir y descargar el texto con sus minutos.</p>
+        </details>
+        <details>
+          <summary>¿Es privado de verdad?</summary>
+          <p>Sí. La primera vez se descarga el modelo de voz (Whisper, de OpenAI) y se queda guardado en tu navegador. A partir de ahí todo ocurre en tu dispositivo, incluso sin conexión: ni el audio ni el texto se envían a ningún servidor.</p>
+        </details>
+        <details>
+          <summary>¿Cuánto ocupa?</summary>
+          <p>Cada calidad descarga su modelo una sola vez: Rápida ≈ 77 MB, Buena ≈ 250-300 MB y Máxima ≈ 560 MB. La calidad Máxima necesita un navegador que deje usar la tarjeta gráfica (WebGPU): Chrome o Edge en ordenador y, cada vez más, en el móvil.</p>
+          <p><button class="boton-sec" id="borrar-modelos" type="button">Borrar modelos descargados</button></p>
+        </details>
+      </section>
+    </main>
+
+    <footer class="pie">
+      <button class="boton-sec" id="compartir-app" type="button">Pasar Léelo a alguien</button>
+      <p>Léelo usa <a href="https://github.com/openai/whisper" rel="noopener">Whisper</a> a través de <a href="https://huggingface.co/docs/transformers.js" rel="noopener">transformers.js</a>. Hecho por Cristian.</p>
+    </footer>
+  </div>
+
+  <template id="tpl-audio">
+    <li class="audio" data-estado="cola">
+      <div class="barra" aria-hidden="true"><span></span></div>
+      <div class="audio-cabecera">
+        <p class="audio-nombre"></p>
+        <p class="audio-meta"></p>
+        <button class="quitar" type="button" aria-label="Quitar este audio">
+          <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        </button>
+      </div>
+      <p class="audio-estado"></p>
+      <audio class="reproductor" controls preload="metadata" hidden></audio>
+      <p class="texto provisional"></p>
+      <ol class="frases"></ol>
+      <div class="acciones" hidden>
+        <button class="boton-sec" type="button" data-accion="copiar">Copiar</button>
+        <button class="boton-sec" type="button" data-accion="compartir" hidden>Compartir</button>
+        <button class="boton-sec" type="button" data-accion="txt">Descargar .txt</button>
+        <button class="boton-sec" type="button" data-accion="srt">Subtítulos .srt</button>
+      </div>
+    </li>
+  </template>
+</body>
+</html>
